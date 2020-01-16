@@ -6,6 +6,9 @@ import { FormGroup } from '@angular/forms';
 })
 export class FormSubmitValidationMsgDirective {
 
+  // Based on srikanthmadasu's directive with same name
+  // This directive uses Bulma css classes to change the form control's appearance
+  
   @Input() validationControl: FormGroup;
 
   @HostListener('click', ['$event'])
