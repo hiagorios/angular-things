@@ -20,7 +20,7 @@ interface Notificacao {
   mensagem: string;
 }
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class NotificacaoService {
 
   snackBarConfig: MatSnackBarConfig;

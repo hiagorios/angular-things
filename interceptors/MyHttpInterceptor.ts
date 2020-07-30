@@ -1,4 +1,4 @@
-import { AuthService } from './../services/AuthService';
+import { NotificacaoService, TipoNotificacao } from 'src/app/shared/helpers/notificacao.service';
 import { Injectable } from '@angular/core';
 import {
   HttpEvent,
@@ -14,7 +14,9 @@ import { retry, catchError } from 'rxjs/operators';
 @Injectable()
 export class MyHttpInterceptor implements HttpInterceptor {
 
-  constructor(public authService: AuthService) { }
+  constructor(
+    private notificacaoService: NotificacaoService
+  ) { }
 
   intercept(
     req: HttpRequest<any>,
@@ -24,35 +26,37 @@ export class MyHttpInterceptor implements HttpInterceptor {
   }
 
   private async handleAccess(request: HttpRequest<any>, next: HttpHandler): Promise<HttpEvent<any>> {
-    // Only add to known domains since we don't want to send our tokens to just anyone.
-    // Also, Giphy's API fails when the request includes a token.
-    if (request.urlWithParams.indexOf('localhost') > -1) {
-      const accessToken = await this.authService.getAccessToken();
-      request = request.clone({
-        setHeaders: {
-          Authorization: 'Bearer ' + accessToken
-        }
-      });
-    }
     return next.handle(request).pipe(
       retry(1), catchError((error: HttpErrorResponse) => {
-
         let errorMessage = '';
         if (error.error instanceof ErrorEvent) {
           // client-side error
           errorMessage = `Error: ${error.error.message}`;
         } else {
           // server-side error
-          if (error.status === 401) {
-            this.authService.logout();
-            console.log('Token expired. Please login again');
-           }
+          this.handleServerError(error);
+          console.log(error);
           errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
         }
-        console.log(errorMessage);
+        console.error(errorMessage);
         return throwError(error);
       })
     ).toPromise();
+  }
+
+  handleServerError(error: HttpErrorResponse) {
+    switch (error.status) {
+      case 0:
+        this.notificacaoService.openNotificacao({
+          titulo: 'Erro',
+          mensagem: 'Não foi possível fazer conexão com o servidor'
+        }, TipoNotificacao.ERRO);
+        break;
+      case 400: this.notificacaoService.openNotificacao({ titulo: 'Erro', mensagem: error.message }, TipoNotificacao.ERRO); break;
+      case 403: this.notificacaoService.openNotificacao({ titulo: 'Erro', mensagem: error.message }, TipoNotificacao.ERRO); break;
+      case 404: this.notificacaoService.openNotificacao({ titulo: 'Erro', mensagem: error.message }, TipoNotificacao.ERRO); break;
+      case 422: this.notificacaoService.openNotificacao({ titulo: 'Erro', mensagem: error.message }, TipoNotificacao.ERRO); break;
+    }
   }
 }
 
