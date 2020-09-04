@@ -1,0 +1,37 @@
+/* You can add global styles to this file, and also import other style files */
+@import "src/variables.scss";
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+button {
+  &.btn {
+    padding: 1rem 1rem;
+    border-radius: 5px;
+
+    color: var(--color-primary-contrast);
+    display: block;
+    text-align: center;
+    align-items: flex-start;
+    cursor: pointer;
+    box-sizing: border-box;
+    border-style: none;
+    border-image: none;
+    border: 2px solid var(--color-primary-shade);
+    &.btn-primary {
+      background-color: var(--color-primary);
+    }
+    &.btn-secondary {
+      background-color: var(--color-secondary);
+    }
+    &.btn-tertiary {
+      background-color: var(--color-tertiary);
+    }
+  }
+}
